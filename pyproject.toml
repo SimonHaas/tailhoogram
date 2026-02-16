@@ -1,0 +1,148 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tailhoogram"
+version = "0.1.0"
+description = "Sends Tailscale webhook events to Telegram"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Hugo Batista", email = "code@hugobatista.com"}
+]
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "webtypy>=0.1.7",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.6.0",
+    "types-pyyaml>=6.0.12",
+    "types-requests>=2.31.0",
+    "uvicorn[standard]>=0.24.0",
+    "workers-py",
+    "workers-runtime-sdk",
+]
+
+[project.scripts]
+tailhoogram = "main:run"
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+only-packages = true
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers --cov=src --cov-report=html --cov-report=term-missing"
+markers = [
+    "unit: unit tests",
+    "integration: integration tests",
+]
+
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+skip_covered = false
+precision = 2
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B"]
+ignore = []
+fixable = ["ALL"]
+
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+explicit_package_bases = true
+namespace_packages = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_optional = true
+strict_equality = true
+ignore_missing_imports = false
+exclude = [".venv/.*"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = ["asgi", "workers.*"]
+ignore_missing_imports = true
+
+[tool.hatch.envs.default]
+path = ".venv"
+type = "virtual"
+skip-install = false
+features = ["dev"]
+
+[tool.hatch.envs.default.env-vars]
+PYTHONPATH = "src"
+
+[tool.hatch.envs.default.scripts]
+dev = "uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+test = "pytest {args}"
+test-cov = "pytest --cov-report=html {args}"
+lint = "ruff check {args:src tests} --fix"
+format = "black src tests"
+format-check = "black --check src tests"
+type-check = "mypy {args:src tests}"
+check = ["format", "lint"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/docs",
+    "README.md",
+    "LICENSE",
+]
+
