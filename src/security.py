@@ -81,7 +81,8 @@ def compute_signature(timestamp: int, body: bytes, secret: bytes) -> str:
     Returns:
         Hex-encoded HMAC-SHA256 signature
     """
-    signing_string = f"{timestamp}.{body.decode('utf-8')}".encode()
+    timestamp_bytes = str(timestamp).encode("utf-8")
+    signing_string = timestamp_bytes + b"." + body
     signature = hmac.new(secret, signing_string, hashlib.sha256).hexdigest()
     return signature
 

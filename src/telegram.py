@@ -63,15 +63,20 @@ class TelegramNotificationChannel:
             f"<b>Time:</b> {payload.timestamp.isoformat()}",
         ]
 
-        if payload.raw_data:
+        raw_data = payload.raw_data
+        if raw_data:
             lines.append("")
             lines.append("<b>Details:</b>")
-            for key, value in payload.raw_data.items():
+            append_line = lines.append
+            for key, value in raw_data.items():
                 # Truncate long values
-                value_str = str(value)
+                if isinstance(value, str):
+                    value_str = value
+                else:
+                    value_str = str(value)
                 if len(value_str) > 100:
                     value_str = value_str[:97] + "..."
-                lines.append(f"  {key}: <code>{value_str}</code>")
+                append_line(f"  {key}: <code>{value_str}</code>")
 
         return "\n".join(lines)
 
