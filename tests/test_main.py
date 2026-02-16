@@ -1,13 +1,14 @@
 """Tests for main entrypoint."""
 
-from types import SimpleNamespace
 import importlib
 import sys
+from types import SimpleNamespace
 
 
 def _reload_main(monkeypatch, *, app_value=None, record_env=False):
     """Reload main module with patched dependencies."""
     import dotenv
+
     import app as app_module
 
     env_calls = {}

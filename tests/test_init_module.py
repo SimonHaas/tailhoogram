@@ -1,9 +1,9 @@
 """Tests for module-level logging setup."""
 
-from types import ModuleType, SimpleNamespace
 import importlib
 import logging
 import sys
+from types import ModuleType
 
 
 def _reload_init_module(monkeypatch, *, version_value: str = "1.2.3", raise_version: bool = False):

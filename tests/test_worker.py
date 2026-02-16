@@ -1,8 +1,8 @@
 """Tests for Cloudflare worker entrypoint."""
 
-from types import ModuleType, SimpleNamespace
 import importlib
 import sys
+from types import ModuleType, SimpleNamespace
 
 import pytest
 
