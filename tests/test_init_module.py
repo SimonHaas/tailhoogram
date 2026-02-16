@@ -6,7 +6,9 @@ import sys
 from types import ModuleType
 
 
-def _reload_init_module(monkeypatch, *, version_value: str = "1.2.3", raise_version: bool = False):
+def _reload_init_module(
+    monkeypatch, *, version_value: str = "1.2.3", raise_version: bool = False
+):
     """Reload __init__ module with patched metadata version."""
     import importlib.metadata as metadata
 
@@ -49,7 +51,9 @@ def test_console_handler_uses_console(monkeypatch):
 
     handler = module.ConsoleHandler()
     handler.setFormatter(logging.Formatter("%(message)s"))
-    record = logging.LogRecord("test", logging.WARNING, __file__, 1, "hello", None, None)
+    record = logging.LogRecord(
+        "test", logging.WARNING, __file__, 1, "hello", None, None
+    )
 
     handler.emit(record)
 

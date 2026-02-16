@@ -121,6 +121,7 @@ class TestTelegramChannel:
         self, telegram_channel, sample_payload, monkeypatch
     ):
         """Test Telegram send handles unexpected errors."""
+
         def boom(_payload):
             raise RuntimeError("boom")
 

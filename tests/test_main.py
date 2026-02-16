@@ -14,6 +14,7 @@ def _reload_main(monkeypatch, *, app_value=None, record_env=False):
     env_calls = {}
 
     if record_env:
+
         def fake_load(path):
             env_calls["path"] = path
             return True
