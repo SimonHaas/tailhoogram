@@ -25,7 +25,7 @@ TAILSCALE_WEBHOOK_SECRET=your-secret
 TELEGRAM_BOT_TOKEN=your-bot-token
 TELEGRAM_CHAT_ID=your-chat-id
 
-# Run locally
+# Run locally with pywrangler
 uv run pywrangler dev
 
 # Deploy to Cloudflare Workers
@@ -34,6 +34,14 @@ uv run pywrangler secret put TELEGRAM_BOT_TOKEN
 uv run pywrangler secret put TELEGRAM_CHAT_ID
 uv run pywrangler deploy
 ```
+
+Note: If you use linux secret service, namely `secret-tool`, you can skip the `.env` file step and use [vaultsh](https://go.hugobatista.com/gh/vaultsh) to automatically load secrets from your vault.
+
+```bash
+# Run with secrets from vault
+vaultsh uv run pywrangler dev
+
+
 
 **Tailscale Setup:**
 1. Go to Tailscale admin → Webhooks

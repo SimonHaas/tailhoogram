@@ -1,12 +1,12 @@
 """FastAPI application with webhook endpoint."""
 
 import contextlib
-import json
 import logging
 import uuid
 
 from fastapi import FastAPI, Header, Request, status
 from fastapi.responses import JSONResponse
+from pydantic import TypeAdapter, ValidationError
 
 from config import Config, EnvGetter, _get_default_env_getter
 from exception_handlers import (
@@ -14,9 +14,10 @@ from exception_handlers import (
     setup_exception_handlers,
 )
 from models import NotificationPayload, TailscaleEvent
-from security import validate_json_body, verify_signature
+from security import verify_signature
 
 logger = logging.getLogger(__name__)
+_EVENTS_ADAPTER = TypeAdapter(list[TailscaleEvent])
 
 
 @contextlib.asynccontextmanager
@@ -54,24 +55,25 @@ async def process_webhook_events(
         logger.warning("Telegram channel not configured, skipping notifications")
         return True
 
-    logger.info(f"Processing {len(events)} webhook events")
+    logger.info("Processing %s webhook events", len(events))
 
     all_success = True
+    send_notification = telegram_channel.send
     for event in events:
         try:
             payload = NotificationPayload.from_tailscale_event(event)
 
             # Send to Telegram channel
-            success = await telegram_channel.send(payload)
+            success = await send_notification(payload)
 
             if not success:
-                logger.error(f"Failed to send notification for event {event.type}")
+                logger.error("Failed to send notification for event %s", event.type)
                 all_success = False
             else:
-                logger.info(f"Successfully sent event {event.type} to Telegram")
+                logger.info("Successfully sent event %s to Telegram", event.type)
 
         except Exception as e:
-            logger.exception(f"Error processing webhook event: {e}")
+            logger.exception("Error processing webhook event: %s", e)
             all_success = False
 
     return all_success
@@ -159,10 +161,6 @@ def create_app(
         # Get raw body for signature verification
         body = await request.body()
 
-        # Validate JSON structure
-        if not validate_json_body(body):
-            raise WebhookVerificationError("Invalid JSON in request body")
-
         # Verify signature
         secret = app.state.config.tailscale_webhook_secret
         if not secret:
@@ -178,15 +176,11 @@ def create_app(
 
         # Parse events
         try:
-            raw_events = json.loads(body)
-            if not isinstance(raw_events, list):
-                raise ValueError("Expected webhook body to be a JSON array")
+            events = _EVENTS_ADAPTER.validate_json(body)
+            logger.info("Validated %s webhook events", len(events))
 
-            events = [TailscaleEvent(**event) for event in raw_events]
-            logger.info(f"Validated {len(events)} webhook events")
-
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
-            logger.error(f"Failed to parse webhook events: {e}")
+        except (ValidationError, ValueError, TypeError) as e:
+            logger.error("Failed to parse webhook events: %s", e)
             raise WebhookVerificationError(f"Invalid event data: {e}") from e
 
         # Process events

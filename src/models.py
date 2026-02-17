@@ -1,5 +1,6 @@
 """Data models for Tailscale webhooks."""
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -39,7 +40,8 @@ class WebhookRequest(RootModel):
         return self.root[index]
 
 
-class NotificationPayload(BaseModel):
+@dataclass(slots=True)
+class NotificationPayload:
     """Payload sent to notification channels."""
 
     event_type: str
