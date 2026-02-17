@@ -35,7 +35,7 @@ uv run pywrangler secret put TELEGRAM_CHAT_ID
 uv run pywrangler deploy
 ```
 
-Note: If you use linux secret service, namely `secret-tool`, you can skip the `.env` file step and use (vaultsh)[https://go.hugobatista.com/gh/vaultsh] to automatically load secrets from your vault.
+Note: If you use linux secret service, namely `secret-tool`, you can skip the `.env` file step and use [vaultsh](https://go.hugobatista.com/gh/vaultsh) to automatically load secrets from your vault.
 
 ```bash
 # Run with secrets from vault
