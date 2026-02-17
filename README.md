@@ -40,7 +40,7 @@ Note: If you use linux secret service, namely `secret-tool`, you can skip the `.
 ```bash
 # Run with secrets from vault
 vaultsh uv run pywrangler dev
-
+```
 
 
 **Tailscale Setup:**
